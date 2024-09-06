@@ -10,7 +10,6 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -21,7 +20,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 
-public class CommandBlockPermissions extends JavaPlugin implements CommandExecutor {
+public class CommandBlockPermissions extends JavaPlugin {
 	public static final Permission USE_PERMISSION = new Permission("commandblockpermissions.use");
 	public static final Permission BYPASS_PERMISSION = new Permission("commandblockpermissions.bypass");
 	private Set<UUID> enabledPlayers = new HashSet<>(); // key is player uuid, value is previous gamemode
@@ -53,12 +52,7 @@ public class CommandBlockPermissions extends JavaPlugin implements CommandExecut
 		}
 		enabledPlayers.add(player.getUniqueId());
 		if (getConfig().getBoolean("block-tab-complete")) {
-			try {
-				pm.sendServerPacket(player, noCommandsPacket);
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-				return false;
-			}
+			pm.sendServerPacket(player, noCommandsPacket);
 		}
 		return true;
 	}
@@ -67,12 +61,7 @@ public class CommandBlockPermissions extends JavaPlugin implements CommandExecut
 		if (!success) return false;
 		if (getConfig().getBoolean("block-tab-complete")) {
 			if (playerCommands.containsKey(player.getUniqueId())) {
-				try {
-					pm.sendServerPacket(player, playerCommands.get(player.getUniqueId()));
-				} catch (InvocationTargetException e) {
-					e.printStackTrace();
-					return false;
-				}
+				pm.sendServerPacket(player, playerCommands.get(player.getUniqueId()));
 			} else {
 				getLogger().warning("Couldn't find cached commands list for player " + player.getName());
 			}
@@ -125,13 +114,7 @@ public class CommandBlockPermissions extends JavaPlugin implements CommandExecut
 		PacketContainer opPacket = pm.createPacket(PacketType.Play.Server.ENTITY_STATUS);
 		opPacket.getIntegers().write(0, player.getEntityId());
 		opPacket.getBytes().write(0, (byte)(op ? 26 : 24)); // 26 is OP L2, 24 is not OP
-		try {
-			pm.sendServerPacket(player, opPacket);
-		} catch (InvocationTargetException ex) {
-			getLogger().warning("Failed to send fake op packet to player:");
-			ex.printStackTrace();
-			return false;
-		}
+		pm.sendServerPacket(player, opPacket);
 		return true;
 	}
 }
